@@ -16,6 +16,8 @@ import ft2  #汉字标框模块
 from voice_syn_ui import Ui_MainWindow2  # 第二个界面用于 语音合成
 from face_re_ui import Ui_MainWindow  # 主窗体ui代码
 from baiduyuyin import baidu_voice   #百度语音合成模块
+from PIL import Image, ImageDraw, ImageFont
+import numpy as np
 t=time()
 class MyMainWindow(QMainWindow,Ui_MainWindow):
     signal=pyqtSignal()  #初始化信号  为了实现双重界面
@@ -51,7 +53,7 @@ class MyMainWindow(QMainWindow,Ui_MainWindow):
 
         print('切换摄像头')
         if num==1:        #摄像头1
-            self.source = "rtsp://admin:5417010101xx@192.168.1.61/Streaming/Channels/1"
+            #self.source = "rtsp://admin:5417010101xx@192.168.1.61/Streaming/Channels/1"
             self.btn_open_cam_click(1)
 
         elif num==2:  #摄像头2 pushButton_6
@@ -157,7 +159,7 @@ class MyMainWindow(QMainWindow,Ui_MainWindow):
                 QApplication.processEvents()
                 if filename.endswith('jpg'):# 后缀名'jpg'匹对
                     known_face_names.append(filename[:-4])#把文件名字的后四位.jpg去掉获取人名
-                    file_str='photo\\'+filename
+                    file_str='photo/'+filename
                     a_images=face_recognition.load_image_file(file_str)
                     print(file_str)
                     a_face_encoding = face_recognition.face_encodings(a_images)[0]
@@ -190,7 +192,7 @@ class MyMainWindow(QMainWindow,Ui_MainWindow):
                          matches = face_recognition.compare_faces(known_face_encodings, face_encoding,tolerance=0.42)
                             #阈值太低容易造成无法成功识别人脸，太高容易造成人脸识别混淆 默认阈值tolerance为0.6
                             #print(matches)
-                         name = "Unknown"
+                         name = "你好"
 
                          if True in matches:
                              first_match_index = matches.index(True)
@@ -213,11 +215,18 @@ class MyMainWindow(QMainWindow,Ui_MainWindow):
                      left *= 3
                         # 矩形框
                      cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 3)
-                     ft = ft2.put_chinese_text('msyh.ttf')
-                        #引入ft2中的字体
-                       # cv2.putText(frame, name, (left + 6, bottom - 6), font, 0.8, (255, 255, 255), 1)这是不输入汉字时可以用的代码
+                     # ft = ft2.put_chinese_text('msyh.ttf')
+                      #引入ft2中的字体
+                     # frame = ft.draw_text(frame, (left+10 , bottom ), name, 25, (0, 0, 255))
+                     # cv2.putText(frame, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 1) # 这是不输入汉字时可以用的代码
 
-                     frame = ft.draw_text(frame, (left+10 , bottom ), name, 25, (0, 0, 255))
+                     cv2img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                     pilimg = Image.fromarray(cv2img)
+                     draw = ImageDraw.Draw(pilimg) # 图片上打印
+                     font = ImageFont.truetype("msyh.ttf", 20, encoding="utf-8") # 参数1：字体文件路径，参数2：字体大小
+                     draw.text((10, 0), name, (255, 0, 0), font=font) # 参数1：打印坐标，参数2：文本，参数3：字体颜色，参数4：字体
+                     frame = cv2.cvtColor(np.array(pilimg), cv2.COLOR_RGB2BGR)
+
                      print('face recognition is running')
                         #def draw_text(self, image, pos, text, text_size, text_color)
 
