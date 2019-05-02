@@ -12,7 +12,7 @@ from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import *
 from datetime import datetime  #可以用于获取当前的时间
 from time import time   #用于计算时间差 可以用来计算一个模块运行的时间
-import ft2  #汉字标框模块
+# import ft2  #汉字标框模块
 from voice_syn_ui import Ui_MainWindow2  # 第二个界面用于 语音合成
 from face_re_ui import Ui_MainWindow  # 主窗体ui代码
 from baiduyuyin import baidu_voice   #百度语音合成模块
@@ -53,7 +53,7 @@ class MyMainWindow(QMainWindow,Ui_MainWindow):
 
         print('切换摄像头')
         if num==1:        #摄像头1
-            #self.source = "rtsp://admin:5417010101xx@192.168.1.61/Streaming/Channels/1"
+            # self.source = "rtsp://admin:5417010101xx@192.168.1.61/Streaming/Channels/1"
             self.btn_open_cam_click(1)
 
         elif num==2:  #摄像头2 pushButton_6
@@ -202,9 +202,12 @@ class MyMainWindow(QMainWindow,Ui_MainWindow):
                  process_this_frame = not process_this_frame
                     # 将捕捉到的人脸显示出来
                  self.set_name=set(face_names)
+
                  self.set_names=tuple(self.set_name) # 把名字先设为了一个 集合 把重复的去掉 再设为tuple 以便于下面显示其他信息和记录 调用
                  voice_syn=str()
+                 print("#########################")
                  print(self.set_names) #把人脸识别检测到的人 用set_names 这个集合收集起来
+                 print("#########################")
                  self.write_record() #把名字记录到excel中去
                  #self.video_announce()
                  for (top, right, bottom, left), name in zip(face_locations, face_names):
@@ -318,9 +321,9 @@ class MyMainWindow(QMainWindow,Ui_MainWindow):
 
     def signal_emit(self):
         self.signal.emit()#  信号发出
-        #baidu_voice('欢迎来到郑州轻工业大学ai人工智能实验室')
+        #baidu_voice('欢迎来到武昌首义学院人工智能实验室')
     def open_file(self):
-        file_name = QFileDialog.getOpenFileName(self,"录入信息","E:\Python code\zwh_face_voice_items\photo")#  打开这个文件夹 选择打开的文件 phot里面的照片是打不开的 因为.py文件在外面
+        file_name = QFileDialog.getOpenFileName(self,"录入信息","D:\eclipse-workspace\face-recognition\photo")#  打开这个文件夹 选择打开的文件 phot里面的照片是打不开的 因为.py文件在外面
         print(file_name)   # file_name 是一个返回值 类似于这种('E:/Python code/gui/hkvideo/information.txt', 'All Files (*)') 想要打开需要一些处理
         try:
             file_name2=list(file_name)[0] # 想要的是information，text 所以需要需要对file_name进行处理 需要注意的是打开的是 photo文件夹是向里面传照片的再返回出来 填写information
@@ -335,11 +338,15 @@ class MyMainWindow(QMainWindow,Ui_MainWindow):
             print('没有打开文件')
 
     def write_record(self):   #把识别出来的人脸记录到一个excel表格中（有漏洞）
-        #self.need_record_name=set(self.need_record_name)
+
+        # self.need_record_name=set(self.need_record_name)
+        # print('need_record_names1 is', self.need_record_name)
         print('need_record_names1 is',self.need_record_name1)
         print('need_record_names2 is',self.need_record_name2)
 
-        if self.source=="rtsp://admin:5417010101xx@192.168.1.61/Streaming/Channels/1":
+        # if self.source=="rtsp://admin:5417010101xx@192.168.1.61/Streaming/Channels/1":
+        if self.cap.isOpened() == True:
+            print('61')
             if self.set_name.issubset(self.need_record_name1):  # 如果self.set_names是self.need_record_names 的子集返回ture
                 pass                                             # need_record_name1是要写进excel中的名字信息 set_name是从摄像头中读出人脸的tuple形式
             else :
@@ -371,6 +378,7 @@ class MyMainWindow(QMainWindow,Ui_MainWindow):
                 os.remove(filename)  # 删除旧的excel
                 os.rename('secondsheet.xls', filename)  # 将新excel重命名
         elif self.source=="rtsp://admin:541701010xx@192.168.1.60/Streaming/Channels/1":
+            print('60')
             if self.set_name.issubset(self.need_record_name2):  # 如果self.set_names是self.need_record_names 的子集返回ture
                 pass
             else :
@@ -402,6 +410,7 @@ class MyMainWindow(QMainWindow,Ui_MainWindow):
                 os.rename('secondsheet.xls', filename)  # 将新excel重命名
 
     def video_announce(self):  #语音播报模块  点击之后会对已经记录下来的人脸名字进行播报
+        print('video_announce')
         #跟录入excel中数据情况类似  self.need_record_name1 是一个当前包含所有名字的集合 利用这个集合输出
         if self.source=="rtsp://admin:541701010xx@192.168.1.60/Streaming/Channels/1":
             need_voice_name=self.need_record_name2
@@ -420,11 +429,6 @@ class MyMainWindow(QMainWindow,Ui_MainWindow):
                 voice_str=voice_str+i+' '
             voice_str=voice_str+'的到来'
             baidu_voice(voice_str)  # 欢迎 某 某某 的到来
-
-
-
-
-
 
     def open_record(self):
         os.system('data.xls')
